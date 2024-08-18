@@ -1,0 +1,35 @@
+#exec > /dev/kmsg 2>&1
+#set -x
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+ROOTDIR=$(realpath $(dirname $0))
+
+# Check if config exists
+if [ ! -f $ROOTDIR/config ]; then
+  echo "Please add config"
+  exit 1
+fi
+
+# Add "-w 5" to all iptables
+alias iptables="iptables -w 5"
+alias ip6tables="ip6tables -w 5"
+
+iptables46() {
+  iptables $*
+  if [[ "$IPV6" == "1" ]]; then
+    ip6tables $*
+  fi
+}
+
+# Load config
+. $ROOTDIR/config
+
+if [ ! -z "$LOG_PATH" ]; then
+  exec >> "$LOG_PATH" 2>&1
+fi
+
+# Umask
+umask 0077
+
+# Log
+echo "Starting $0: $(date)"
