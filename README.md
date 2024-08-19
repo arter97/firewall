@@ -2,7 +2,9 @@
 
 This repository contains several script to provide protections against malicious IPs and provide Country-based port opening.
 
-This repository uses [stamparm/ipsum](https://github.com/stamparm/ipsum) for malicious IP database and [herrbischoff/country-ip-blocks](https://github.com/herrbischoff/country-ip-blocks) for Geolocation CIDR database. If you do not trust those repositories, do not use this repository either.
+This repository uses [stamparm/ipsum](https://github.com/stamparm/ipsum) for malicious IP database and [MaxMind's GeoIP/GeoLite](https://www.maxmind.com) for Geolocation CIDR database. If you do not trust those, do not use this repository either.
+
+You need to write your own GeoIP/GeoLite's URL to the config file.
 
 ## Features
 
@@ -42,6 +44,8 @@ TCP_FORWARD_PORTS="7000:8000"
 UDP_FORWARD_PORTS="70000:80000"
 GEOIP_TCP_FORWARD_PORTS="kr 7500:8000"
 GEOIP_UDP_FORWARD_PORTS="kr 75000:80000"
+# MaxMind's GeoLite2 URL with token
+GEOIP_CSV_ZIP_LINK="https://download.maxmind.com/app/geoip_download_by_token?edition_id=GeoLite2-Country-CSV&token=[YOUR_TOKEN]&suffix=zip"
 ```
 
 #### - LOG_PATH
@@ -73,6 +77,12 @@ In most cases, "lo" must always be included for proper 127.0.0.1 operation.
 #### - GEOIP_TCP_PORTS, GEOIP_UDP_PORTS
 
 Country-based port access. This variable accepts multi-line. Each line denotes which ports should be opened to which country(ies). Country should be written in [ccTLD](https://en.wikipedia.org/wiki/Country_code_top-level_domain) format.
+
+#### - GEOIP_CSV_ZIP_LINK
+
+MaxMind's direct link with personal token.
+
+You may use `GEOIP_IPV4_CSV_LINK` and `GEOIP_IPV6_CSV_LINK` as alternatives.
 
 ### Forwarding rules
 
@@ -106,7 +116,7 @@ kr 7000:8000"
 ### 1. Install required packages
 
 ``` bash
-sudo apt install iptables ipset curl wget git
+sudo apt install iptables ipset curl wget git python3-netaddr unzip
 ```
 
 ### 2. Download

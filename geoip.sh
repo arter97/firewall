@@ -40,19 +40,46 @@ ipset_func() {
   done
 }
 
+mkdir -p $ROOTDIR/geoip-data
+cd $ROOTDIR/geoip-data
+
+# Get all geoip countries
+GEOIP_ALL_COUNTRIES="$(echo "$GEOIP_TCP_PORTS" "$GEOIP_UDP_PORTS" "$GEOIP_TCP_FORWARD_PORTS" "$GEOIP_UDP_FORWARD_PORTS" | tr ' ' '\n' | grep '^[a-z]' | tr '[:lower:]' '[:upper:]')"
+
 if [[ "$1" != "skip" ]]; then
   echo "Updating GeoIP"
 
-  cd $(dirname $0)
-  if [ ! -d country-ip-blocks ]; then
-    git clone https://github.com/herrbischoff/country-ip-blocks
+  rm -f ./*.txt ./*.csv
+  if [ ! -z "$GEOIP_CSV_ZIP_LINK" ]; then
+    wget -q "$GEOIP_CSV_ZIP_LINK"
+    unzip -qj ./*.zip
+    rm *.zip
+  else
+    wget -q "$GEOIP_IPV4_CSV_LINK"
+    wget -q "$GEOIP_IPV6_CSV_LINK"
+    ( ls *.zst 2>/dev/null || true ) | xargs zstd --rm -d
   fi
-  cd country-ip-blocks
-  git fetch
-  git reset --hard origin/master
-fi
+  wget -q https://download.geonames.org/export/dump/countryInfo.txt
 
-cd $ROOTDIR/country-ip-blocks
+  GEOIP_ALL_COUNTRIES_REGEX=""
+  for iso in $GEOIP_ALL_COUNTRIES; do
+    GEOIP_ALL_COUNTRIES_REGEX="^${iso}[[:space:]]|$GEOIP_ALL_COUNTRIES_REGEX"
+  done
+  GEOIP_ALL_COUNTRIES_REGEX=${GEOIP_ALL_COUNTRIES_REGEX::-1}
+
+  mkdir -p ipv4 ipv6
+
+  while read iso geoid; do
+    cat ./*IPv4.csv | awk -F, '$2 == '"$geoid"' {print $1}' | python3 ../cidr.py > ipv4/${iso}.cidr &
+  done < <(cat countryInfo.txt | grep -E "$GEOIP_ALL_COUNTRIES_REGEX" | awk -F'\t' '{print $1,$17}' | tr '[:upper:]' '[:lower:]')
+
+  while read iso geoid; do
+    cat ./*IPv6.csv | awk -F, '$2 == '"$geoid"' {print $1}' | python3 ../cidr.py > ipv6/${iso}.cidr &
+  done < <(cat countryInfo.txt | grep -E "$GEOIP_ALL_COUNTRIES_REGEX" | awk -F'\t' '{print $1,$17}' | tr '[:upper:]' '[:lower:]')
+
+  wait
+  rm -f ./*.txt ./*.csv
+fi
 
 # Get all geoip ports
 GEOIP_ALL_TCP_PORTS="$(echo "$GEOIP_TCP_PORTS" | tr ' ' '\n' | grep '^[0-9]')"
