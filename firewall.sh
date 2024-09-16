@@ -104,10 +104,10 @@ iptables46 -I INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 if [[ "$APPLY_FORWARD_RULES" == "1" ]]; then
   # Whitelisted forward ports
   if [ ! -z "$TCP_FORWARD_PORTS" ]; then
-    iptables46 -I FORWARD -p tcp -m conntrack --ctstate NEW -m tcp --dport "$TCP_FORWARD_PORTS" -m comment --comment "arter97-firewall" -j ACCEPT
+    iptables46 -I FORWARD -p tcp -m conntrack --ctstate NEW -m multiport --dports "$TCP_FORWARD_PORTS" -m comment --comment "arter97-firewall" -j ACCEPT
   fi
   if [ ! -z "$UDP_FORWARD_PORTS" ]; then
-    iptables46 -I FORWARD -p udp -m conntrack --ctstate NEW -m udp --dport "$UDP_FORWARD_PORTS" -m comment --comment "arter97-firewall" -j ACCEPT
+    iptables46 -I FORWARD -p udp -m conntrack --ctstate NEW -m multiport --dports "$UDP_FORWARD_PORTS" -m comment --comment "arter97-firewall" -j ACCEPT
   fi
 
   # Block all incoming connections if there are whitelisted ports
