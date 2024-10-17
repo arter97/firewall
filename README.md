@@ -248,10 +248,10 @@ COMMIT
 -A FORWARD -i enx1831bf4dd4ff -m comment --comment arter97-firewall -j ACCEPT
 -A FORWARD -i lo -m comment --comment arter97-firewall -j ACCEPT
 -A FORWARD -m set --match-set ipsum src -j DROP
--A FORWARD -p udp -m conntrack --ctstate NEW -m udp --dport 4464:14464 -m comment --comment arter97-firewall -j ACCEPT
--A FORWARD -p tcp -m conntrack --ctstate NEW -m tcp --dport 7000:8000 -m comment --comment arter97-firewall -j ACCEPT
--A FORWARD -p udp -m conntrack --ctstate NEW -m udp --dport 9464:14464 -m set --match-set ipset-geoip-kr src -j ACCEPT
--A FORWARD -p tcp -m conntrack --ctstate NEW -m tcp --dport 7500:8000 -m set --match-set ipset-geoip-kr src -j ACCEPT
+-A FORWARD -p udp -m conntrack --ctstate NEW -m udp --dports 4464:14464 -m comment --comment arter97-firewall -j ACCEPT
+-A FORWARD -p tcp -m conntrack --ctstate NEW -m tcp --dports 7000:8000 -m comment --comment arter97-firewall -j ACCEPT
+-A FORWARD -p udp -m conntrack --ctstate NEW -m udp --dports 9464:14464 -m set --match-set ipset-geoip-kr src -j ACCEPT
+-A FORWARD -p tcp -m conntrack --ctstate NEW -m tcp --dports 7500:8000 -m set --match-set ipset-geoip-kr src -j ACCEPT
 COMMIT
 # Completed on Sat Aug 17 02:01:35 2024
 ```
