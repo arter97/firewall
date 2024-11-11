@@ -56,7 +56,7 @@ if [[ "$1" != "skip" ]]; then
   else
     wget -q "$GEOIP_IPV4_CSV_LINK"
     wget -q "$GEOIP_IPV6_CSV_LINK"
-    ( ls *.zst 2>/dev/null || true ) | xargs zstd --rm -d
+    ( ls *.zst 2>/dev/null || true ) | xargs zstd --rm -d -q
   fi
   wget -q https://download.geonames.org/export/dump/countryInfo.txt
 
