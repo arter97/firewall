@@ -71,9 +71,10 @@ fi
 # Enable ping
 if [[ "$ENABLE_PING" == "1" ]]; then
   iptables -I INPUT -p icmp --icmp-type echo-request -m comment --comment "arter97-firewall" -j ACCEPT
-  if [[ "$IPV6" == "1" ]]; then
-    ip6tables -I INPUT -p ipv6-icmp --icmpv6-type echo-request -m comment --comment "arter97-firewall" -j ACCEPT
-  fi
+fi
+# IPv6 depends on ICMPv6 control plane for proper operations
+if [[ "$IPV6" == "1" ]]; then
+  ip6tables -I INPUT -p ipv6-icmp -m comment --comment "arter97-firewall" -j ACCEPT
 fi
 
 # Whitelisted ports
