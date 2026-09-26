@@ -28,6 +28,21 @@ if [ ! -z "$LOG_PATH" ]; then
   exec >> "$LOG_PATH" 2>&1
 fi
 
+# Check if all required commands are installed
+MISSING=""
+for cmd in ipset iptables ip6tables curl wget uuidgen awk sed stat unzip zstd xargs python3 realpath; do
+  if ! command -v $cmd > /dev/null 2>&1; then
+    MISSING="$MISSING $cmd"
+  fi
+done
+if command -v python3 > /dev/null 2>&1 && ! python3 -c "import netaddr" > /dev/null 2>&1; then
+  MISSING="$MISSING python3-netaddr"
+fi
+if [ ! -z "$MISSING" ]; then
+  echo "Missing required commands:$MISSING"
+  exit 1
+fi
+
 # Umask
 umask 0077
 
